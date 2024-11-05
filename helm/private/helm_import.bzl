@@ -26,8 +26,8 @@ def _helm_import_impl(ctx):
             # Download the chart
             ctx.actions.run(
                 outputs = [chart_file],
-                executable = ctx.which("curl"),
-                arguments = ["-L", "-o", chart_file.path, chart_url],
+                executable = "curl -L -o \"$1\" \"$2\"",
+                arguments = [chart_file.path, chart_url],
                 execution_requirements = {"requires-network": "1"},
                 progress_message = "Downloading chart from {}".format(chart_url),
             )
@@ -40,8 +40,8 @@ def _helm_import_impl(ctx):
             # Download index.yaml
             ctx.actions.run(
                 outputs = [index_yaml_file],
-                executable = ctx.which("curl"),
-                arguments = ["-L", "-o", index_yaml_file.path, repository.rstrip("/") + "/index.yaml"],
+                executable = "curl -L -o \"$1\" \"$2\"",
+                arguments = [index_yaml_file.path, repository.rstrip("/") + "/index.yaml"],
                 execution_requirements = {"requires-network": "1"},
                 progress_message = "Downloading index.yaml from {}".format(repository),
             )
@@ -66,8 +66,8 @@ def _helm_import_impl(ctx):
             ctx.actions.run(
                 inputs = [chart_url_file],
                 outputs = [chart_file],
-                executable = ctx.which("curl"),
-                arguments = ["-L", "-o", chart_file.path, "$(cat {})".format(chart_url_file.path)],
+                executable = "curl -L -o \"$1\" \"$2\"",
+                arguments = [chart_file.path, "$(cat {})".format(chart_url_file.path)],
                 execution_requirements = {"requires-network": "1"},
                 progress_message = "Downloading chart from URL",
             )
@@ -102,27 +102,21 @@ helm_import = rule(
         "chart": attr.label(
             doc = "A Helm chart's `.tgz` file.",
             allow_single_file = [".tgz"],
-            default = None,
         ),
         "chart_name": attr.string(
             doc = "Chart name to import.",
-            default = None,
         ),
         "version": attr.string(
             doc = "The version fo the helm chart",
-            default = None,
         ),
         "repository": attr.string(
             doc = "Chart repository URL where to locate the requested chart.",
-            default = None,
         ),
         "url": attr.string(
             doc = "The URL where the chart can be directly downloaded.",
-            default = None,
         ),
         "sha256": attr.string(
             doc = "The expected SHA-256 hash of the chart to verify integrity.",
-            default = None,
         ),
     },
 )
